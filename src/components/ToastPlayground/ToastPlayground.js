@@ -5,16 +5,35 @@ import Button from "../Button";
 import styles from "./ToastPlayground.module.css";
 import Toast from "../Toast";
 import { clear } from "@testing-library/user-event/dist/clear";
+import ToastShelf from "../ToastShelf";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
   const [message, setMessage] = React.useState("");
   const [variant, setVariant] = React.useState(VARIANT_OPTIONS[0]);
-  const [toastShown, setToastShown] = React.useState(false);
+  const [toasts, setToasts] = React.useState([]);
 
-  function clearToast() {
-    setToastShown(false);
+  function addToastItem() {
+    const nextToasts = [
+      ...toasts,
+      {
+        id: crypto.randomUUID(),
+        message,
+        variant,
+      },
+    ];
+
+    setToasts(nextToasts);
+    setVariant(VARIANT_OPTIONS[0]);
+    setMessage('');
+  }
+
+  function removeToast(toastId) {
+    const nextToasts = toasts.filter((toast) => {
+      return toast.id !== toastId;
+    });
+    setToasts(nextToasts);
   }
 
   return (
@@ -24,13 +43,12 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {
-        toastShown &&
-        <Toast variant={variant} onClose={clearToast}>
-          {message}
-        </Toast>
-      }
+      <ToastShelf toasts={toasts} removeToast={removeToast}/>
 
+      <form onSubmit={event => {
+        event.preventDefault();
+        addToastItem()
+      }}>
       <div className={styles.controlsWrapper}>
         <div className={styles.row}>
           <label
@@ -81,14 +99,13 @@ function ToastPlayground() {
           <div
             className={`${styles.inputWrapper} ${styles.radioWrapper}`}
           >
-            <Button onClick={() => {
-              setToastShown(true)
-            }}
-            >Pop Toast!</Button>
+            <Button>Pop Toast!</Button>
           </div>
         </div>
+
       </div>
-    </div>
+      </form>
+      </div>
   );
 }
 
