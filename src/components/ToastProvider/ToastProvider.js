@@ -3,6 +3,23 @@ import React from "react";
 export const ToastContext = React.createContext();
 
 function ToastProvider({children}) {
+
+  React.useEffect(() => {
+    // Effect logic:
+    function handleEscapePress(event) {
+      if(event.key === "Escape") {
+        setToasts([]);
+      }
+    }
+
+    window.addEventListener('keydown', handleEscapePress);
+
+    // Cleanup function:
+    return () => {
+      window.removeEventListener('keydown', handleEscapePress);
+    };
+  }, []);
+
   const [toasts, setToasts] = React.useState([]);
 
   function removeToast(toastId) {
